@@ -221,6 +221,7 @@ body::after{
 .tr-btn.loading{opacity:.6;cursor:wait}
 
 .feed.noanim .card{animation:none !important}
+.card.fresh{animation:fadeUp .28s cubic-bezier(.22,.68,.32,1) both}
 
 /* 骨架 */
 .sk{display:flex;gap:13px;padding:13px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}
@@ -365,7 +366,7 @@ body::after{
 
   <div class="foot">
     <span>数据：GDELT Project · Spaceflight News API（均免密钥）</span>
-    <span>译文由 Google / MyMemory 提供，仅供参考<br><br><b>离线兜底</b>实时接口不可用时自动显示内置快照，不会空白；下拉或点右上角刷新可重新拉取。</span>
+    <span>译文由 Google / MyMemory 提供，仅供参考 · v1.3<br><br><b>离线兜底</b>实时接口不可用时自动显示内置快照，不会空白；下拉或点右上角刷新可重新拉取。</span>
   </div>
 </div>
 
@@ -604,7 +605,7 @@ function cardHTML(it, kind, idx){
     + (it.image ? '<img data-src="' + esc(it.image) + '" referrerpolicy="no-referrer" alt="">' : '')
     + phIcon + '</div>';
   return '<a class="card' + (kind==='sf'?' cyan':'') + '" data-kind="' + kind + '" data-idx="' + idx
-    + '" href="' + esc(it.url) + '" target="_blank" rel="noopener noreferrer">'
+    + '" data-url="' + esc(it.url) + '" href="' + esc(it.url) + '" target="_blank" rel="noopener noreferrer">'
     +   thumb
     +   '<div class="card-body">'
     +     '<div class="card-title" data-title="1" title="' + esc(it.title) + '">' + esc(it.title) + '</div>'
@@ -620,51 +621,91 @@ function cardHTML(it, kind, idx){
     + '</a>';
 }
 
-function bindCards(feed, items){
-  feed.querySelectorAll('.card').forEach(card => {
-    const it = items[+card.dataset.idx];
-    if(window.NativeReader && it && it.url){
-      card.addEventListener('click', ev => {
-        ev.preventDefault(); ev.stopPropagation();
-        try{ window.NativeReader.open(it.url); }catch(e){}
-      });
-    }
-    const btn = card.querySelector('[data-tr]');
-    if(btn && it){
-      btn.addEventListener('click', ev => {
-        ev.preventDefault(); ev.stopPropagation();
-        translateCard(btn, it, card.querySelector('[data-title]'));
-      });
-    }
-    // 朗读
-    const tb = card.querySelector('[data-tts]');
-    if(tb && it && window.NativeTts){
-      tb.addEventListener('click', ev => {
-        ev.preventDefault(); ev.stopPropagation();
-        const tEl = card.querySelector('[data-title]');
-        const txt = (tEl ? tEl.textContent : it.title || '').trim();
-        try{
-          if(tb.classList.contains('on')){ window.NativeTts.stop(); tb.classList.remove('on'); return; }
-          document.querySelectorAll('.tts-btn.on').forEach(b => b.classList.remove('on'));
-          window.NativeTts.speak(txt + '。来源，' + (it.source || '') + '。');
-          tb.classList.add('on');
-          setTimeout(() => tb.classList.remove('on'), 12000);
-        }catch(e){}
-      });
-    }else if(tb){ tb.style.display='none'; }
+const _cardBinds = new WeakSet();
 
-    // 图片：惰性加载 + 2.5s 超时静默，失败不留空洞，避免闪烁
-    const img = card.querySelector('img[data-src]');
-    if(img){
-      const src = img.getAttribute('data-src');
-      const ok = () => { img.classList.add('ok'); const ph = card.querySelector('.ph'); if(ph) ph.style.display = 'none'; };
-      const fail = () => { img.classList.add('fail'); };
-      img.addEventListener('load', ok);
-      img.addEventListener('error', fail);
-      setTimeout(() => { if(!img.classList.contains('ok')) fail(); }, 2500);
-      if(src) img.src = src;
-    }
+function bindCards(feed, items){
+  feed.querySelectorAll('.card').forEach(card => bindOne(card, items));
+}
+
+function bindOne(card, items){
+  if(_cardBinds.has(card)) return;
+  _cardBinds.add(card);
+
+  const url = card.getAttribute('data-url') || '';
+  const it = items.find(x => x.url === url);
+
+  if(window.NativeReader && it && it.url){
+    card.addEventListener('click', ev => {
+      ev.preventDefault(); ev.stopPropagation();
+      try{ window.NativeReader.open(it.url); }catch(e){}
+    });
+  }
+
+  const btn = card.querySelector('[data-tr]');
+  if(btn && it){
+    btn.addEventListener('click', ev => {
+      ev.preventDefault(); ev.stopPropagation();
+      translateCard(btn, it, card.querySelector('[data-title]'));
+    });
+  }
+
+  const tb = card.querySelector('[data-tts]');
+  if(tb && it && window.NativeTts){
+    tb.addEventListener('click', ev => {
+      ev.preventDefault(); ev.stopPropagation();
+      const tEl = card.querySelector('[data-title]');
+      const txt = (tEl ? tEl.textContent : it.title || '').trim();
+      try{
+        if(tb.classList.contains('on')){ window.NativeTts.stop(); tb.classList.remove('on'); return; }
+        document.querySelectorAll('.tts-btn.on').forEach(b => b.classList.remove('on'));
+        window.NativeTts.speak(txt + '。来源，' + (it.source || '') + '。');
+        tb.classList.add('on');
+        setTimeout(() => tb.classList.remove('on'), 12000);
+      }catch(e){}
+    });
+  }else if(tb){ tb.style.display='none'; }
+
+  const img = card.querySelector('img[data-src]');
+  if(img){
+    const src = img.getAttribute('data-src');
+    const ok = () => { img.classList.add('ok'); const ph = card.querySelector('.ph'); if(ph) ph.style.display = 'none'; };
+    const fail = () => { img.classList.add('fail'); };
+    img.addEventListener('load', ok);
+    img.addEventListener('error', fail);
+    setTimeout(() => { if(!img.classList.contains('ok')) fail(); }, 2500);
+    if(src) img.src = src;
+  }
+}
+
+/* 只把新条目插到顶部，已有节点完全不动 */
+function prependCards(feed, kind, items){
+  if(!feed || !items || !items.length) return;
+  const frag = document.createDocumentFragment();
+  items.forEach(it => {
+    const wrap = document.createElement('div');
+    wrap.innerHTML = cardHTML(it, kind, 0);
+    const node = wrap.firstElementChild;
+    if(!node) return;
+    node.classList.add('fresh');
+    bindOne(node, items);
+    frag.appendChild(node);
   });
+  feed.insertBefore(frag, feed.firstChild);
+  feed.classList.remove('noanim');
+}
+
+/* 按 url 去重合并，已有对象原样保留 */
+function mergeIncoming(existing, incoming){
+  const seen = {};
+  for(let i=0;i<existing.length;i++) seen[existing[i].url] = 1;
+  const added = [];
+  for(let i=0;i<incoming.length;i++){
+    const x = incoming[i];
+    if(!x || !x.url || seen[x.url]) continue;
+    seen[x.url] = 1;
+    added.push(x);
+  }
+  return { merged: added.concat(existing), added: added };
 }
 
 /* ================= 数据获取 ================= */
@@ -676,8 +717,7 @@ function readCache(){
     const raw = localStorage.getItem(cacheKey());
     if(!raw) return null;
     const o = JSON.parse(raw);
-    if(Date.now() - o.ts > CACHE_TTL) return null;
-    return o.items;
+    return (o.items && o.items.length) ? o.items : null;
   }catch(e){ return null; }
 }
 function writeCache(items){
@@ -694,13 +734,18 @@ async function waitGdelt(){
 }
 
 async function fetchMain(force){
-  if(!force){
-    const c = readCache();
-    if(c){ state.mainItems = c; state.loadingMain = false; renderMain(); updateCounts(); return; }
+  // 先把上次的内容立刻铺上去，不闪不空
+  const cached = readCache();
+  if(cached){
+    state.mainItems = cached;
+    state.loadingMain = false;
+    renderMain();
+    updateCounts();
   }
-  state.loadingMain = true; state.errorMain = '';
-  $('#src-tag').textContent = 'GDELT';
-  renderMain();
+
+  const hasContent = state.mainItems.length > 0;
+  if(!hasContent){ state.loadingMain = true; renderMain(); }
+  state.errorMain = '';
 
   const topic = TOPICS.find(t => t.key === state.topic) || TOPICS[0];
   const langFilter = state.langMode === 'zh' ? ' sourcelang:chinese' : ' sourcelang:english';
@@ -711,13 +756,12 @@ async function fetchMain(force){
 
   try{
     await waitGdelt();
-    let res = await fetchT(url, 15000);
+    let res = await fetchT(url, 12000);
 
-    // 429：短等再试一次，不行就切备用源（避免首屏等太久）
     if(res.status === 429){
       await new Promise(r => setTimeout(r, 2200));
       state.lastGdeltCall = Date.now();
-      res = await fetchT(url, 10000);
+      res = await fetchT(url, 9000);
     }
     if(res.status === 429) throw new Error('RATE_LIMITED');
     if(!res.ok) throw new Error('HTTP ' + res.status);
@@ -726,7 +770,7 @@ async function fetchMain(force){
     const arts = (data && data.articles) || [];
     if(!arts.length) throw new Error('EMPTY');
 
-    state.mainItems = arts.map(a => {
+    const incoming = arts.map(a => {
       const t = parseGdeltTime(a.seendate);
       return {
         title: (a.title || '').replace(/\s+/g,' ').trim(),
@@ -740,17 +784,23 @@ async function fetchMain(force){
       };
     }).filter(x => x.title && x.url);
 
-    state.mainItems.sort((a, b) => b.pubDate - a.pubDate);
+    incoming.sort((a, b) => b.pubDate - a.pubDate);
 
+    const r = mergeIncoming(state.mainItems, incoming);
+    state.mainItems = r.merged;
     state.mainSource = 'gdelt';
-    $('#src-tag').textContent = 'GDELT';
     state.loadingMain = false;
+    $('#src-tag').textContent = 'GDELT';
     writeCache(state.mainItems);
-    renderMain();
+
+    if(!hasContent){
+      renderMain();               // 首次：整列渲染
+    }else if(r.added.length){
+      prependCards($('#feed-main'), 'main', r.added);   // 之后：只插新的
+    }
     updateCounts();
     if(state.autoTranslate) autoTranslateAll('#feed-main');
   }catch(err){
-    // 主源失败 → 切到航天防务库做关键词检索，保证页面不空
     await fallbackMain(topic, err);
   }
   setStamp();
@@ -764,10 +814,10 @@ async function fallbackMain(topic, err){
                : 'GDELT 不可达';
   try{
     const url = SF_API + '?search=' + encodeURIComponent(topic.fb || 'military') + '&limit=18&ordering=-published_at';
-    const res = await fetchT(url, 15000);
+    const res = await fetchT(url, 12000);
     if(!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
-    state.mainItems = (data.results || []).map(a => ({
+    const incoming = (data.results || []).map(a => ({
       title: a.title,
       url: a.url,
       image: a.image_url || '',
@@ -777,19 +827,26 @@ async function fallbackMain(topic, err){
       langCode: 'en',
       pubDate: a.published_at ? new Date(a.published_at).getTime() : 0
     }));
-    if(!state.mainItems.length) throw new Error('EMPTY2');
-    state.mainItems.sort((a, b) => b.pubDate - a.pubDate);
+    if(!incoming.length) throw new Error('EMPTY2');
+    incoming.sort((a, b) => b.pubDate - a.pubDate);
+
+    const hasContent = state.mainItems.length > 0;
+    const r = mergeIncoming(state.mainItems, incoming);
+    state.mainItems = r.merged;
     state.mainSource = 'sf';
     state.loadingMain = false;
     $('#src-tag').textContent = '防务库';
-    renderMain();
+    writeCache(state.mainItems);
+
+    if(!hasContent) renderMain();
+    else if(r.added.length) prependCards($('#feed-main'), 'main', r.added);
     updateCounts();
-    toast(reason + '，已切到防务新闻库');
+    if(r.added.length) toast(reason + '，已切到防务新闻库');
     if(state.autoTranslate) autoTranslateAll('#feed-main');
   }catch(e2){
+    if(state.mainItems.length) return;   // 已有内容就安静失败，不清空
     state.loadingMain = false;
-    const sd = seedItems();
-    state.mainItems = sd;
+    state.mainItems = seedItems();
     state.mainSource = 'seed';
     $('#src-tag').textContent = '内置快照';
     renderMain();
@@ -799,14 +856,30 @@ async function fallbackMain(topic, err){
 }
 
 async function fetchSf(){
-  state.loadingSf = true; state.errorSf = '';
-  renderSf();
+  const cachedSf = (function(){
+    try{
+      const raw = localStorage.getItem('fl_v1_sf');
+      if(!raw) return null;
+      const o = JSON.parse(raw);
+      return (o.items && o.items.length) ? o.items : null;
+    }catch(e){ return null; }
+  })();
+  if(cachedSf){
+    state.sfItems = cachedSf;
+    state.loadingSf = false;
+    renderSf();
+    updateCounts();
+  }
+
+  const hasContent = state.sfItems.length > 0;
+  if(!hasContent){ state.loadingSf = true; renderSf(); }
+
   const url = SF_API + '?limit=10&ordering=-published_at';
   try{
-    const res = await fetchT(url, 15000);
+    const res = await fetchT(url, 12000);
     if(!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
-    state.sfItems = (data.results || []).map(a => ({
+    const incoming = (data.results || []).map(a => ({
       title: a.title,
       url: a.url,
       image: a.image_url || '',
@@ -816,69 +889,30 @@ async function fetchSf(){
       langCode: 'en',
       pubDate: a.published_at ? new Date(a.published_at).getTime() : 0
     }));
-    state.sfItems.sort((a, b) => b.pubDate - a.pubDate);
+    incoming.sort((a, b) => b.pubDate - a.pubDate);
+
+    const r = mergeIncoming(state.sfItems, incoming);
+    state.sfItems = r.merged;
     state.loadingSf = false;
-    renderSf();
+    try{ localStorage.setItem('fl_v1_sf', JSON.stringify({ts:Date.now(), items: state.sfItems})); }catch(e){}
+
+    if(!hasContent) renderSf();
+    else if(r.added.length) prependCards($('#feed-sf'), 'sf', r.added);
     updateCounts();
     if(state.autoTranslate) autoTranslateAll('#feed-sf');
   }catch(err){
+    if(state.sfItems.length) return;   // 有内容就安静失败
     state.loadingSf = false;
     state.sfItems = seedItems().slice(-6);
-    $('#src-tag-sf') && ($('#src-tag-sf').textContent = '内置快照');
     renderSf();
     updateCounts();
-  }
-  setStamp();
-}
-
-/* 自动翻译：串行进行；一旦失败立即停下，避免无谓请求 */
-async function autoTranslateAll(sel){
-  const feed = $(sel);
-  if(!feed) return;
-  const cards = Array.from(feed.querySelectorAll('.card'));
-  let failed = false, okCount = 0;
-
-  for(const card of cards){
-    if(!state.autoTranslate) return;
-    const btn = card.querySelector('[data-tr]');
-    if(!btn || btn.classList.contains('done')) continue;
-    const kind = card.dataset.kind;
-    const idx = +card.dataset.idx;
-    const it = kind === 'sf' ? state.sfItems[idx] : state.mainItems[idx];
-    if(!it) continue;
-
-    btn.classList.add('loading');
-    btn.textContent = '…';
-    const out = await translateText(it.title, it.langCode);
-    btn.classList.remove('loading');
-
-    if(!out){ failed = true; btn.textContent = '译'; break; }
-
-    const titleEl = card.querySelector('[data-title]');
-    titleEl.textContent = out;
-    titleEl.classList.add('zh');
-    btn.textContent = '已译';
-    btn.classList.add('done');
-    okCount++;
-    await new Promise(r => setTimeout(r, 120));
-  }
-
-  if(failed){
-    if(okCount === 0){
-      // 内置翻译整体不可用：自动关掉开关，避免每次打开都空转
-      state.autoTranslate = false;
-      const sw = $('#autoTr .sw');
-      if(sw) sw.classList.remove('on');
-      toast('内置翻译暂时不可用，已先关闭自动翻译；可在浏览器里右键「翻译成中文」', 4200);
-    }else{
-      toast('部分标题没翻成，可点单条的「译」重试', 2800);
-    }
   }
 }
 
 function updateCounts(){
-  $('#cnt-main').textContent = state.mainItems.length ? state.mainItems.length + ' 条' : '';
-  $('#cnt-sf').textContent = state.sfItems.length ? state.sfItems.length + ' 条' : '';
+  const a=$('#cnt-main'), b=$('#cnt-sf');
+  if(a) a.textContent = state.mainItems.length ? state.mainItems.length + ' 条' : '';
+  if(b) b.textContent = state.sfItems.length ? state.sfItems.length + ' 条' : '';
 }
 
 function setStamp(){
