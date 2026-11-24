@@ -191,7 +191,11 @@ body::after{
 .card:hover .thumb img{transform:scale(1.06)}
 .thumb .ph{
   position:absolute;inset:0;display:grid;place-items:center;
-  color:rgba(255,255,255,.16);font-size:17px;font-weight:300;letter-spacing:.02em;
+  background:linear-gradient(135deg,#1c2029,#11141a);
+}
+.ph-i{
+  font-size:15px;font-weight:700;letter-spacing:.03em;
+  color:rgba(245,165,36,.5);text-shadow:0 0 18px rgba(245,165,36,.25);
 }
 .thumb .ph svg{width:20px;height:20px}
 .card-body{min-width:0;flex:1;display:flex;flex-direction:column;gap:7px}
@@ -208,13 +212,22 @@ body::after{
 .src{color:var(--muted);font-weight:500}
 .sep{width:3px;height:3px;border-radius:50%;background:var(--muted2);flex:0 0 3px}
 .lang-tag{
-  font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;
+  font-size:9px;letter-spacing:.06em;text-transform:uppercase;
   border:1px solid rgba(255,255,255,.1);padding:1px 5px;border-radius:4px;color:var(--muted2);
 }
+.acts{margin-left:auto;display:flex;align-items:center;gap:5px;flex:0 0 auto}
 .tr-btn{
-  margin-left:auto;border:1px solid rgba(58,183,242,.3);background:rgba(58,183,242,.09);
+  border:1px solid rgba(58,183,242,.3);background:rgba(58,183,242,.09);
   color:var(--cyan);font-size:10px;padding:2px 8px;border-radius:6px;cursor:pointer;
-  font-family:inherit;transition:.16s;letter-spacing:.03em;
+  font-family:inherit;transition:.16s;letter-spacing:.03em;line-height:1.5;
+}
+.tts-btn{
+  border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);
+  color:#98a1b0;font-size:10px;padding:2px 8px;border-radius:6px;cursor:pointer;
+  font-family:inherit;transition:.16s;letter-spacing:.03em;line-height:1.5;
+}
+.tts-btn:hover,.tts-btn.on{
+  border-color:rgba(245,165,36,.5);background:rgba(245,165,36,.13);color:#f8c26a;
 }
 .tr-btn:hover{background:rgba(58,183,242,.2)}
 .tr-btn.done{border-color:rgba(255,255,255,.1);background:transparent;color:var(--muted2);cursor:default}
@@ -366,7 +379,7 @@ body::after{
 
   <div class="foot">
     <span>数据：GDELT Project · Spaceflight News API（均免密钥）</span>
-    <span>译文由 Google / MyMemory 提供，仅供参考 · v1.3<br><br><b>离线兜底</b>实时接口不可用时自动显示内置快照，不会空白；下拉或点右上角刷新可重新拉取。</span>
+    <span>译文由 Google / MyMemory 提供，仅供参考 · v1.6<br><br><b>离线兜底</b>实时接口不可用时自动显示内置快照，不会空白；下拉或点右上角刷新可重新拉取。</span>
   </div>
 </div>
 
@@ -597,10 +610,24 @@ function renderSf(){
   bindCards(feed, state.sfItems);
 }
 
+function langShort(l){
+  if(!l) return '';
+  const v = String(l).toLowerCase();
+  if(v.indexOf('chinese') === 0) return '\u4e2d';
+  if(v.indexOf('english') === 0) return 'EN';
+  if(v.indexOf('russian') === 0) return 'RU';
+  if(v.indexOf('spanish') === 0) return 'ES';
+  if(v.indexOf('french') === 0) return 'FR';
+  if(v.indexOf('arabic') === 0) return 'AR';
+  if(v.indexOf('german') === 0) return 'DE';
+  if(v.indexOf('japanese') === 0) return 'JA';
+  if(v.indexOf('korean') === 0) return 'KO';
+  return String(l).slice(0,2).toUpperCase();
+}
+
 function cardHTML(it, kind, idx){
-  const phIcon = '<div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">'
-               + '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.6"/>'
-               + '<path d="M21 16l-5-5-6 6"/></svg></div>';
+  const initial = (it.source || '?').replace(/^www\./, '').charAt(0).toUpperCase() || '?';
+  const phIcon = '<div class="ph"><span class="ph-i">' + esc(initial) + '</span></div>';
   const thumb = '<div class="thumb">'
     + (it.image ? '<img data-src="' + esc(it.image) + '" referrerpolicy="no-referrer" alt="">' : '')
     + phIcon + '</div>';
@@ -613,9 +640,10 @@ function cardHTML(it, kind, idx){
     +       '<span class="src">' + esc(it.source || '未知来源') + '</span>'
     +       '<span class="sep"></span>'
     +       '<span>' + esc(it.timeLabel || '') + '</span>'
-    +       (it.lang ? '<span class="lang-tag">' + esc(it.lang) + '</span>' : '')
-    +       (isCJK(it.title) ? '' : '<button class="tr-btn" data-tr="1" type="button">译</button>')
-    +       '\u003cbutton class="tts-btn" data-tts="1" type="button"\u003e听\u003c/button\u003e'
+    +       (it.lang ? '<span class="lang-tag">' + esc(langShort(it.lang)) + '</span>' : '')
+    +       '<span class="acts">'
+    +         (isCJK(it.title) ? '' : '<button class="tr-btn" data-tr="1" type="button">译</button>')
+    +       '</span>'
     +     '</div>'
     +   '</div>'
     + '</a>';
@@ -649,22 +677,6 @@ function bindOne(card, items){
     });
   }
 
-  const tb = card.querySelector('[data-tts]');
-  if(tb && it && window.NativeTts){
-    tb.addEventListener('click', ev => {
-      ev.preventDefault(); ev.stopPropagation();
-      const tEl = card.querySelector('[data-title]');
-      const txt = (tEl ? tEl.textContent : it.title || '').trim();
-      try{
-        if(tb.classList.contains('on')){ window.NativeTts.stop(); tb.classList.remove('on'); return; }
-        document.querySelectorAll('.tts-btn.on').forEach(b => b.classList.remove('on'));
-        window.NativeTts.speak(txt + '。来源，' + (it.source || '') + '。');
-        tb.classList.add('on');
-        setTimeout(() => tb.classList.remove('on'), 12000);
-      }catch(e){}
-    });
-  }else if(tb){ tb.style.display='none'; }
-
   const img = card.querySelector('img[data-src]');
   if(img){
     const src = img.getAttribute('data-src');
@@ -672,7 +684,7 @@ function bindOne(card, items){
     const fail = () => { img.classList.add('fail'); };
     img.addEventListener('load', ok);
     img.addEventListener('error', fail);
-    setTimeout(() => { if(!img.classList.contains('ok')) fail(); }, 2500);
+    setTimeout(() => { if(!img.classList.contains('ok')) fail(); }, 4000);
     if(src) img.src = src;
   }
 }
