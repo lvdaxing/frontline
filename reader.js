@@ -23,7 +23,8 @@
     var sents = splitSentences(text);
     if (!sents.length) return '';
     var scored = [];
-    for (var i = 0; i < sents.length; i++) {
+    var start = sents.length > 2 ? 1 : 0;
+    for (var i = start; i < sents.length; i++) {
       var s = sents[i], score = 0;
       score += Math.max(0, 6 - i) * 1.2;
       for (var k = 0; k < KW.length; k++) if (s.indexOf(KW[k]) > -1) score += 2.2;
