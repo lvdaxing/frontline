@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#08090c">
+<title>前线 FRONTLINE · 国际军事与政治速览</title>
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+:root{
+  --bg:#08090c;
+  --bg2:#0c0e13;
+  --panel:#10121a;
+  --card:#14171f;
+  --card-hover:#191d26;
+  --line:rgba(255,255,255,.07);
+  --line-strong:rgba(255,255,255,.13);
+  --text:#e9ecf1;
+  --muted:#858d9d;
+  --muted2:#5d6472;
+  --amber:#f5a524;
+  --amber-dim:rgba(245,165,36,.13);
+  --cyan:#3ab7f2;
+  --red:#f04e4e;
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",-apple-system,sans-serif;
+  font-weight:400;
+  line-height:1.5;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+/* 背景光晕与细网格 */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(900px 500px at 12% -8%, rgba(245,165,36,.10), transparent 60%),
+    radial-gradient(760px 460px at 92% 4%, rgba(58,183,242,.08), transparent 62%);
+}
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.35;
+  background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),
+                    linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 20%,transparent 85%);
+}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 18px 80px}
+
+/* ============ 顶栏 ============ */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  backdrop-filter:blur(18px) saturate(140%);
+  -webkit-backdrop-filter:blur(18px) saturate(140%);
+  background:linear-gradient(to bottom,rgba(8,9,12,.92),rgba(8,9,12,.72));
+  border-bottom:1px solid var(--line);
+}
+.topbar-inner{
+  max-width:1180px;margin:0 auto;padding:14px 18px 12px;
+  display:flex;align-items:center;gap:14px;
+}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.mark{
+  width:34px;height:34px;flex:0 0 34px;border-radius:10px;
+  background:linear-gradient(150deg,#1d2029,#0e1016);
+  border:1px solid var(--line-strong);
+  display:grid;place-items:center;position:relative;overflow:hidden;
+}
+.mark::after{
+  content:"";position:absolute;inset:0;
+  background:conic-gradient(from 210deg,rgba(245,165,36,.0),rgba(245,165,36,.35),rgba(245,165,36,.0) 40%);
+  animation:spin 9s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.mark svg{position:relative;z-index:2;width:17px;height:17px;color:var(--amber)}
+.brand-txt{min-width:0}
+.brand-title{
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:20px;font-weight:700;letter-spacing:.12em;line-height:1;
+  text-transform:uppercase;white-space:nowrap;
+}
+.brand-title span{color:var(--amber)}
+.brand-sub{font-size:11px;color:var(--muted2);letter-spacing:.06em;margin-top:3px;white-space:nowrap}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.stamp{font-size:11px;color:var(--muted2);text-align:right;line-height:1.35;white-space:nowrap}
+.stamp b{color:var(--muted);font-weight:500}
+.icon-btn{
+  width:36px;height:36px;border-radius:11px;flex:0 0 36px;
+  border:1px solid var(--line-strong);background:rgba(255,255,255,.03);
+  color:var(--text);display:grid;place-items:center;cursor:pointer;
+  transition:.18s ease;
+}
+.icon-btn:hover{background:rgba(255,255,255,.07);border-color:rgba(245,165,36,.45);color:var(--amber)}
+.icon-btn:active{transform:scale(.94)}
+.icon-btn svg{width:16px;height:16px}
+.icon-btn.spinning svg{animation:spin .9s linear infinite}
+
+/* ============ 控制条 ============ */
+.controls{padding-top:18px;display:flex;flex-direction:column;gap:12px}
+.chip-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.chip-row::-webkit-scrollbar{display:none}
+.chip{
+  flex:0 0 auto;padding:7px 14px;border-radius:999px;font-size:13px;
+  border:1px solid var(--line);background:rgba(255,255,255,.025);color:var(--muted);
+  cursor:pointer;transition:.18s ease;white-space:nowrap;
+}
+.chip:hover{color:var(--text);border-color:var(--line-strong)}
+.chip.on{
+  color:#1a1205;background:var(--amber);border-color:var(--amber);font-weight:600;
+  box-shadow:0 4px 16px rgba(245,165,36,.28);
+}
+.sub-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.seg{
+  display:inline-flex;padding:3px;border-radius:10px;
+  border:1px solid var(--line);background:rgba(255,255,255,.025);
+}
+.seg button{
+  border:0;background:transparent;color:var(--muted);font-size:12px;
+  padding:5px 11px;border-radius:8px;cursor:pointer;transition:.15s;font-family:inherit;
+}
+.seg button.on{background:rgba(255,255,255,.09);color:var(--text);font-weight:500}
+.toggle{
+  margin-left:auto;display:flex;align-items:center;gap:8px;cursor:pointer;
+  font-size:12px;color:var(--muted);user-select:none;
+}
+.sw{
+  width:38px;height:21px;border-radius:999px;background:rgba(255,255,255,.1);
+  border:1px solid var(--line-strong);position:relative;transition:.2s;
+}
+.sw::after{
+  content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;
+  background:#8a909d;transition:.2s;
+}
+.sw.on{background:rgba(245,165,36,.28);border-color:rgba(245,165,36,.6)}
+.sw.on::after{left:19px;background:var(--amber)}
+
+/* ============ 布局 ============ */
+.grid{
+  display:grid;grid-template-columns:1.45fr 1fr;gap:22px;margin-top:22px;align-items:start;
+}
+@media(max-width:900px){.grid{grid-template-columns:1fr;gap:26px}}
+.section-head{
+  display:flex;align-items:center;gap:9px;margin-bottom:12px;padding-left:2px;
+}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--amber);box-shadow:0 0 10px var(--amber)}
+.dot.cyan{background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.section-head h2{
+  font-size:13px;font-weight:600;letter-spacing:.09em;color:var(--text);text-transform:uppercase;
+}
+.section-head .tag{
+  font-size:10px;color:var(--muted2);border:1px solid var(--line);padding:1px 7px;border-radius:5px;
+  letter-spacing:.04em;
+}
+.section-head .count{margin-left:auto;font-size:11px;color:var(--muted2)}
+
+/* ============ 卡片 ============ */
+.feed{display:flex;flex-direction:column;gap:10px}
+.card{
+  display:flex;gap:13px;padding:15px 16px 14px;
+  background:linear-gradient(150deg,var(--card),#111319);
+  border:1px solid var(--line);border-radius:var(--radius);
+  cursor:pointer;text-decoration:none;color:inherit;position:relative;overflow:hidden;
+  transition:transform .18s ease,border-color .18s ease,background .18s ease;
+  animation:fadeUp .3s cubic-bezier(.22,.68,.32,1) both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.card::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:var(--amber);opacity:0;transition:.18s;
+}
+.card:hover{
+  border-color:rgba(245,165,36,.34);background:linear-gradient(150deg,var(--card-hover),#141821);
+  transform:translateY(-1px);
+}
+.card:hover::before{opacity:1}
+.card.cyan::before{background:var(--cyan)}
+.card.cyan:hover{border-color:rgba(58,183,242,.34)}
+.thumb{
+  width:104px;height:74px;flex:0 0 104px;border-radius:9px;overflow:hidden;position:relative;
+  background:linear-gradient(135deg,#1b1f28,#10131a);
+  border:1px solid rgba(255,255,255,.05);
+}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .3s ease,transform .35s ease}
+.thumb img.ok{opacity:1}
+.thumb img.fail{display:none}
+.card:hover .thumb img{transform:scale(1.06)}
+.thumb .ph{
+  position:absolute;inset:0;display:grid;place-items:center;
+  color:rgba(255,255,255,.16);font-size:17px;font-weight:300;letter-spacing:.02em;
+}
+.thumb .ph svg{width:20px;height:20px}
+.card-body{min-width:0;flex:1;display:flex;flex-direction:column;gap:7px}
+.card-title{
+  font-size:15px;font-weight:500;line-height:1.48;color:var(--text);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  min-height:2.96em;
+}
+.card-title.zh{color:#d8f4ff}
+.card-meta{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  font-size:11px;color:var(--muted2);margin-top:auto;
+}
+.src{color:var(--muted);font-weight:500}
+.sep{width:3px;height:3px;border-radius:50%;background:var(--muted2);flex:0 0 3px}
+.lang-tag{
+  font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;
+  border:1px solid rgba(255,255,255,.1);padding:1px 5px;border-radius:4px;color:var(--muted2);
+}
+.tr-btn{
+  margin-left:auto;border:1px solid rgba(58,183,242,.3);background:rgba(58,183,242,.09);
+  color:var(--cyan);font-size:10px;padding:2px 8px;border-radius:6px;cursor:pointer;
+  font-family:inherit;transition:.16s;letter-spacing:.03em;
+}
+.tr-btn:hover{background:rgba(58,183,242,.2)}
+.tr-btn.done{border-color:rgba(255,255,255,.1);background:transparent;color:var(--muted2);cursor:default}
+.tr-btn.loading{opacity:.6;cursor:wait}
+
+.feed.noanim .card{animation:none !important}
+
+/* 骨架 */
+.sk{display:flex;gap:13px;padding:13px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}
+.sk-thumb{width:104px;height:74px;flex:0 0 104px;border-radius:9px}
+.sk-lines{flex:1;display:flex;flex-direction:column;gap:8px;justify-content:center}
+.sk-l1{height:12px;width:92%;border-radius:4px}
+.sk-l2{height:12px;width:64%;border-radius:4px}
+.sk-l3{height:9px;width:38%;border-radius:4px}
+.sh{background:linear-gradient(90deg,#181c24 25%,#212630 50%,#181c24 75%);background-size:200% 100%;animation:shim 1.4s infinite}
+@keyframes shim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+.hint{
+  font-size:11.5px;color:var(--muted2);padding:2px 2px 6px;letter-spacing:.02em;
+  display:flex;align-items:center;gap:7px;
+}
+.hint i{
+  width:6px;height:6px;border-radius:50%;background:var(--amber);
+  animation:pulse 1.2s ease-in-out infinite;flex:0 0 6px;
+}
+@keyframes pulse{0%,100%{opacity:.25}50%{opacity:1}}
+
+/* 状态块 */
+.state{
+  padding:34px 20px;text-align:center;border:1px dashed var(--line-strong);border-radius:var(--radius);
+  color:var(--muted);font-size:13px;background:rgba(255,255,255,.015);
+}
+.state .big{font-size:15px;color:var(--text);margin-bottom:6px;font-weight:500}
+.state button{
+  margin-top:14px;padding:7px 18px;border-radius:8px;border:1px solid rgba(245,165,36,.4);
+  background:var(--amber-dim);color:var(--amber);font-size:12px;cursor:pointer;font-family:inherit;
+}
+.state button:hover{background:rgba(245,165,36,.22)}
+
+/* 提示条 */
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);
+  background:#1a1e27;border:1px solid var(--line-strong);color:var(--text);
+  padding:10px 18px;border-radius:10px;font-size:12.5px;z-index:80;
+  opacity:0;pointer-events:none;transition:.25s;max-width:90vw;text-align:center;
+  box-shadow:0 8px 30px rgba(0,0,0,.5);
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* 页脚 */
+.foot{
+  margin-top:42px;padding-top:18px;border-top:1px solid var(--line);
+  font-size:11px;color:var(--muted2);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+}
+.foot a{color:var(--muted);text-decoration:none}
+.foot a:hover{color:var(--amber)}
+
+/* ============ 窄屏适配 ============ */
+.chip-row{
+  -webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);
+  mask-image:linear-gradient(90deg,#000 88%,transparent);
+}
+@media(max-width:560px){
+  .wrap{padding:0 13px 56px}
+  .topbar-inner{padding:12px 13px 10px;gap:10px}
+  .mark{width:30px;height:30px;flex-basis:30px}
+  .brand-title{font-size:17px}
+  .brand-sub{font-size:10px}
+  .stamp{display:none}
+  .controls{padding-top:14px;gap:10px}
+  .chip{padding:6px 12px;font-size:12.5px}
+  .grid{margin-top:18px;gap:24px}
+  .card{padding:11px;gap:11px}
+  .thumb{width:84px;height:62px;flex-basis:84px}
+  .card-title{font-size:14px;min-height:2.9em}
+  .card-meta{font-size:10.5px}
+  .sk-thumb{width:84px;height:62px;flex-basis:84px}
+  .sk{padding:11px;gap:11px}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ 顶栏 ============ -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+          <circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/>
+        </svg>
+      </div>
+      <div class="brand-txt">
+        <div class="brand-title">前线 <span>Frontline</span></div>
+        <div class="brand-sub">国际军事 · 政治 · 防务速览</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="stamp" id="stamp">数据源就绪<br><b>等待拉取</b></div>
+      <button class="icon-btn" id="refresh" title="刷新">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ 控制条 ============ -->
+  <div class="controls">
+    <div class="chip-row" id="chips"></div>
+    <div class="sub-row">
+      <div class="seg" id="langseg">
+        <button data-mode="zh" class="on">中文源</button>
+        <button data-mode="global">全球源</button>
+      </div>
+      <div class="toggle" id="autoTr">
+        <div class="sw on"></div><span>自动翻译标题</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 主体 ============ -->
+  <div class="grid">
+    <section>
+      <div class="section-head">
+        <span class="dot"></span>
+        <h2>全球快讯</h2>
+        <span class="tag" id="src-tag">GDELT</span>
+        <span class="count" id="cnt-main"></span>
+      </div>
+      <div class="feed" id="feed-main"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <span class="dot cyan"></span>
+        <h2>航天防务</h2>
+        <span class="tag">Spaceflight</span>
+        <span class="count" id="cnt-sf"></span>
+      </div>
+      <div class="feed" id="feed-sf"></div>
+    </section>
+  </div>
+
+  <div class="foot">
+    <span>数据：GDELT Project · Spaceflight News API（均免密钥）</span>
+    <span>译文由 Google / MyMemory 提供，仅供参考<br><br><b>离线兜底</b>实时接口不可用时自动显示内置快照，不会空白；下拉或点右上角刷新可重新拉取。</span>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+/* ================= 配置 ================= */
+const GDELT_API = 'https://api.gdeltproject.org/api/v2/doc/doc';
+const SF_API = 'https://api.spaceflightnewsapi.net/v4/articles';
+const CACHE_TTL = 10 * 60 * 1000;   // 10 分钟本地缓存
+const GDELT_COOLDOWN = 5000;        // GDELT 要求 5 秒 1 次
+
+const TOPICS = [
+  { key:'all',      label:'全部',       q:'military conflict', fb:'military' },
+  { key:'conflict', label:'军事冲突',    q:'military conflict', fb:'war' },
+  { key:'nato',     label:'北约',        q:'NATO',              fb:'NATO' },
+  { key:'exercise', label:'军演',        q:'military exercise', fb:'exercise' },
+  { key:'budget',   label:'军费',        q:'defense budget',    fb:'defense' },
+  { key:'arms',     label:'军售',        q:'arms sales',        fb:'weapons' },
+  { key:'politics', label:'国际政治',    q:'sanctions diplomacy', fb:'sanctions' }
+];
+
+const LANG_MAP = {
+  English:'en', Chinese:'zh', Vietnamese:'vi', Russian:'ru', Arabic:'ar',
+  Japanese:'ja', Korean:'ko', French:'fr', German:'de', Spanish:'es',
+  Italian:'it', Portuguese:'pt', Turkish:'tr', Persian:'fa', Hindi:'hi',
+  Ukrainian:'uk', Polish:'pl', Dutch:'nl', Thai:'th', Indonesian:'id'
+};
+
+/* ================= 状态 ================= */
+const state = {
+  topic: 'all',
+  langMode: 'zh',       // zh = 中文源, global = 英文源需翻译
+  autoTranslate: false, // 默认不自动翻译（手动点「译」）
+  lastGdeltCall: 0,
+  mainItems: [],
+  sfItems: [],
+  mainSource: 'gdelt',
+  loadingMain: true,
+  loadingSf: true,
+  errorMain: '',
+  errorSf: ''
+};
+
+/* ================= 小工具 ================= */
+/* 带超时的 fetch（兼容不支持 AbortSignal.timeout 的旧内核，如部分手机浏览器） */
+function fetchT(url, ms){
+  if(typeof AbortController === 'function'){
+    const ctl = new AbortController();
+    const timer = setTimeout(() => { try{ ctl.abort(); }catch(e){} }, ms);
+    return fetch(url, {signal: ctl.signal}).finally(() => clearTimeout(timer));
+  }
+  return fetch(url);
+}
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+function toast(msg, ms){
+  const el = $('#toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>el.classList.remove('show'), ms || 2200);
+}
+
+/* GDELT 时间 20261122T203000Z -> 相对时间 */
+function parseGdeltTime(s){
+  if(!s) return null;
+  const m = String(s).match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/);
+  if(!m) return null;
+  return new Date(Date.UTC(+m[1], +m[2]-1, +m[3], +m[4], +m[5], +m[6]));
+}
+
+function relTime(d){
+  if(!d || isNaN(d)) return '';
+  const diff = (Date.now() - d.getTime()) / 1000;
+  if (diff < 60) return '刚刚';
+  if (diff < 3600) return Math.floor(diff/60) + ' 分钟前';
+  if (diff < 86400) return Math.floor(diff/3600) + ' 小时前';
+  if (diff < 86400*7) return Math.floor(diff/86400) + ' 天前';
+  const y = d.getFullYear(), now = new Date().getFullYear();
+  const md = d.toLocaleDateString('zh-CN',{month:'2-digit',day:'2-digit'});
+  return y === now ? md : y + '-' + md.replace('/','-');
+}
+
+const isCJK = s => /[\u4e00-\u9fa5]/.test(s || '');
+
+/* ================= 翻译 ================= */
+const trCache = new Map();
+
+async function translateText(text, srcLang){
+  if(!text) return null;
+  if(isCJK(text)) return text;
+  const key = (srcLang||'auto') + '|' + text;
+  if(trCache.has(key)) return trCache.get(key);
+
+  // 1) Google 非官方端点（免密钥，通常最快）
+  try{
+    const u = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=zh-CN&dt=t&q='
+              + encodeURIComponent(text);
+    const r = await fetchT(u, 3000);
+    if(r.ok){
+      const d = await r.json();
+      if(d && d[0] && Array.isArray(d[0])){
+        const out = d[0].map(x => x && x[0] ? x[0] : '').join('').trim();
+        if(out){ trCache.set(key, out); return out; }
+      }
+    }
+  }catch(e){ /* 落到备用 */ }
+
+  // 2) MyMemory（有 CORS，匿名有日额度）
+  try{
+    const pair = (srcLang || 'en') + '|zh-CN';
+    const u = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text.slice(0,450))
+              + '&langpair=' + encodeURIComponent(pair);
+    const r = await fetchT(u, 3000);
+    if(r.ok){
+      const d = await r.json();
+      const t = d && d.responseData && d.responseData.translatedText;
+      if(t && !/MYMEMORY WARNING|QUERY LENGTH LIMIT/i.test(t)){
+        trCache.set(key, t); return t;
+      }
+    }
+  }catch(e){ /* 落到失败 */ }
+
+  return null;
+}
+
+async function translateCard(btn, item, target){
+  if(btn.classList.contains('done')) return;
+  btn.classList.add('loading');
+  btn.textContent = '翻译中';
+  const out = await translateText(item.title, item.langCode);
+  btn.classList.remove('loading');
+  if(out){
+    target.textContent = out;
+    target.classList.add('zh');
+    btn.textContent = '已译';
+    btn.classList.add('done');
+  }else{
+    btn.textContent = '失败';
+    toast('内置翻译不可用，可在浏览器里右键「翻译成中文」');
+    setTimeout(()=>{ btn.textContent = '译'; }, 1800);
+  }
+}
+
+
+/* ================= 内置快照兜底 ================= */
+const SEED = [
+['俄国防部称打击乌能源设施和海上船只','新华社','11-25 00:19','https://news.qq.com/rain/a/20261125A008O600'],
+['泽连斯基证实乌方在芬兰湾袭击俄货船','央视新闻','11-24 22:09','http://news.cnr.cn/sq/20261124/t20261124_527882170.shtml'],
+['乌方称在利比亚班加西击沉俄“水星”号护卫舰','观察者网','11-24 16:31','http://m.toutiao.com/group/7711652697983762970/'],
+['分析称俄军或已阵亡70万，确认死亡超28万','俄独立媒体','11-25 00:38','http://news.qq.com/rain/a/20261125A00HNR00'],
+['俄船只在利比亚海域遇袭，联合国机构“严重关切”','新华网','11-23 10:14','https://www.news.cn/world/dgwj/wkljs/05.htm'],
+['普京：克里米亚大桥遭袭后不再讨论海上停火','新华网','11-20','https://www.news.cn/world/dgwj/wkljs/05.htm'],
+['乌克兰首都遭导弹袭击，致3人死亡','新华网','11-20 15:00','https://www.news.cn/world/dgwj/wkljs/05.htm'],
+['俄美乌时隔9个月重启三方会谈','央视新闻','11-11 07:39','http://intl.ce.cn/qqss/202611/t20261111_3290679.shtml'],
+['伊朗革命卫队：3艘“违规”油轮在霍尔木兹海峡触雷','新华网','11-24','http://www3.xinhuanet.com/milpro/'],
+['伊朗称击落第58架美军“死神”无人机','央广网','11-21 16:29','http://military.cnr.cn/zcff/index_1.html'],
+['伊朗议长：伊方有打破封锁的军事手段','央广网','11-24 17:19','http://military.cnr.cn/gj/'],
+['以情报部门警告：打击伊朗或导致多战线冲突','新华网','11-23','http://www.xinhuanet.com/world/byctsj/05/index.htm'],
+['五角大楼：美国已为伊朗战事花费超480亿美元','新华网','11-20','http://www.xinhuanet.com/world/byctsj/05/index.htm'],
+['一名联合国工作人员在以军空袭加沙时身亡','央广网','11-24 17:17','http://military.cnr.cn/gj/'],
+['韩国称俄军机进入韩防空识别区','央广网','11-24 17:19','http://military.cnr.cn/gj/'],
+['也门胡塞武装称沙特联军空袭塔伊兹省','央广网','11-19 17:19','http://military.cnr.cn/zcff/index_1.html']
+];
+function seedItems(){
+  return SEED.map(([t,s,d,u]) => ({
+    title:t, url:u, source:s, timeLabel:d, image:'',
+    lang:'ZH', langCode:'zh', pubDate:0
+  }));
+}
+
+/* ================= 渲染 ================= */
+function skeleton(n){
+  let html = '<div class="hint"><i></i>正在拉取最新新闻…</div>';
+  for(let i=0;i<n;i++){
+    html += '<div class="sk"><div class="sk-thumb sh"></div><div class="sk-lines">'
+         +  '<div class="sk-l1 sh"></div><div class="sk-l2 sh"></div><div class="sk-l3 sh"></div>'
+         +  '</div></div>';
+  }
+  return html;
+}
+
+function renderMain(){
+  const feed = $('#feed-main');
+  if(state.loadingMain){
+    if(!feed.querySelector('.card')) feed.innerHTML = skeleton(5);
+    return;
+  }
+  if(state.errorMain){
+    feed.innerHTML = '<div class="state"><div class="big">没能拉到快讯</div>'
+      + esc(state.errorMain)
+      + '<br><button onclick="reloadMain()">重试</button></div>';
+    return;
+  }
+  if(!state.mainItems.length){
+    feed.innerHTML = '<div class="state"><div class="big">这个主题暂时没有新消息</div>换个关键词，或点右上角刷新</div>';
+    return;
+  }
+  feed.innerHTML = state.mainItems.map((it, i) => cardHTML(it, 'main', i)).join('');
+  if(state.mainRendered) feed.classList.add('noanim'); else state.mainRendered = true;
+  bindCards(feed, state.mainItems);
+}
+
+function renderSf(){
+  const feed = $('#feed-sf');
+  if(state.loadingSf){
+    if(!feed.querySelector('.card')) feed.innerHTML = skeleton(4);
+    return;
+  }
+  if(state.errorSf){
+    feed.innerHTML = '<div class="state"><div class="big">航天防务源不可达</div>'
+      + esc(state.errorSf) + '<br><button onclick="reloadSf()">重试</button></div>';
+    return;
+  }
+  if(!state.sfItems.length){
+    feed.innerHTML = '<div class="state">暂无条目</div>';
+    return;
+  }
+  feed.innerHTML = state.sfItems.map((it, i) => cardHTML(it, 'sf', i)).join('');
+  if(state.sfRendered) feed.classList.add('noanim'); else state.sfRendered = true;
+  bindCards(feed, state.sfItems);
+}
+
+function cardHTML(it, kind, idx){
+  const phIcon = '<div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">'
+               + '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.6"/>'
+               + '<path d="M21 16l-5-5-6 6"/></svg></div>';
+  const thumb = '<div class="thumb">'
+    + (it.image ? '<img data-src="' + esc(it.image) + '" referrerpolicy="no-referrer" alt="">' : '')
+    + phIcon + '</div>';
+  return '<a class="card' + (kind==='sf'?' cyan':'') + '" data-kind="' + kind + '" data-idx="' + idx
+    + '" href="' + esc(it.url) + '" target="_blank" rel="noopener noreferrer">'
+    +   thumb
+    +   '<div class="card-body">'
+    +     '<div class="card-title" data-title="1" title="' + esc(it.title) + '">' + esc(it.title) + '</div>'
+    +     '<div class="card-meta">'
+    +       '<span class="src">' + esc(it.source || '未知来源') + '</span>'
+    +       '<span class="sep"></span>'
+    +       '<span>' + esc(it.timeLabel || '') + '</span>'
+    +       (it.lang ? '<span class="lang-tag">' + esc(it.lang) + '</span>' : '')
+    +       (isCJK(it.title) ? '' : '<button class="tr-btn" data-tr="1" type="button">译</button>')
+    +       '\u003cbutton class="tts-btn" data-tts="1" type="button"\u003e听\u003c/button\u003e'
+    +     '</div>'
+    +   '</div>'
+    + '</a>';
+}
+
+function bindCards(feed, items){
+  feed.querySelectorAll('.card').forEach(card => {
+    const it = items[+card.dataset.idx];
+    if(window.NativeReader && it && it.url){
+      card.addEventListener('click', ev => {
+        ev.preventDefault(); ev.stopPropagation();
+        try{ window.NativeReader.open(it.url); }catch(e){}
+      });
+    }
+    const btn = card.querySelector('[data-tr]');
+    if(btn && it){
+      btn.addEventListener('click', ev => {
+        ev.preventDefault(); ev.stopPropagation();
+        translateCard(btn, it, card.querySelector('[data-title]'));
+      });
+    }
+    // 朗读
+    const tb = card.querySelector('[data-tts]');
+    if(tb && it && window.NativeTts){
+      tb.addEventListener('click', ev => {
+        ev.preventDefault(); ev.stopPropagation();
+        const tEl = card.querySelector('[data-title]');
+        const txt = (tEl ? tEl.textContent : it.title || '').trim();
+        try{
+          if(tb.classList.contains('on')){ window.NativeTts.stop(); tb.classList.remove('on'); return; }
+          document.querySelectorAll('.tts-btn.on').forEach(b => b.classList.remove('on'));
+          window.NativeTts.speak(txt + '。来源，' + (it.source || '') + '。');
+          tb.classList.add('on');
+          setTimeout(() => tb.classList.remove('on'), 12000);
+        }catch(e){}
+      });
+    }else if(tb){ tb.style.display='none'; }
+
+    // 图片：惰性加载 + 2.5s 超时静默，失败不留空洞，避免闪烁
+    const img = card.querySelector('img[data-src]');
+    if(img){
+      const src = img.getAttribute('data-src');
+      const ok = () => { img.classList.add('ok'); const ph = card.querySelector('.ph'); if(ph) ph.style.display = 'none'; };
+      const fail = () => { img.classList.add('fail'); };
+      img.addEventListener('load', ok);
+      img.addEventListener('error', fail);
+      setTimeout(() => { if(!img.classList.contains('ok')) fail(); }, 2500);
+      if(src) img.src = src;
+    }
+  });
+}
+
+/* ================= 数据获取 ================= */
+function cacheKey(){
+  return 'fl_v1_' + state.topic + '_' + state.langMode;
+}
+function readCache(){
+  try{
+    const raw = localStorage.getItem(cacheKey());
+    if(!raw) return null;
+    const o = JSON.parse(raw);
+    if(Date.now() - o.ts > CACHE_TTL) return null;
+    return o.items;
+  }catch(e){ return null; }
+}
+function writeCache(items){
+  try{ localStorage.setItem(cacheKey(), JSON.stringify({ts:Date.now(), items})); }catch(e){}
+}
+
+/* GDELT 冷却守卫 */
+async function waitGdelt(){
+  const gap = Date.now() - state.lastGdeltCall;
+  if(gap < GDELT_COOLDOWN){
+    await new Promise(r => setTimeout(r, GDELT_COOLDOWN - gap + 200));
+  }
+  state.lastGdeltCall = Date.now();
+}
+
+async function fetchMain(force){
+  if(!force){
+    const c = readCache();
+    if(c){ state.mainItems = c; state.loadingMain = false; renderMain(); updateCounts(); return; }
+  }
+  state.loadingMain = true; state.errorMain = '';
+  $('#src-tag').textContent = 'GDELT';
+  renderMain();
+
+  const topic = TOPICS.find(t => t.key === state.topic) || TOPICS[0];
+  const langFilter = state.langMode === 'zh' ? ' sourcelang:chinese' : ' sourcelang:english';
+  const query = topic.q + langFilter;
+  const url = GDELT_API
+    + '?query=' + encodeURIComponent(query)
+    + '&mode=artlist&maxrecords=24&format=json&sort=date';
+
+  try{
+    await waitGdelt();
+    let res = await fetchT(url, 15000);
+
+    // 429：短等再试一次，不行就切备用源（避免首屏等太久）
+    if(res.status === 429){
+      await new Promise(r => setTimeout(r, 2200));
+      state.lastGdeltCall = Date.now();
+      res = await fetchT(url, 10000);
+    }
+    if(res.status === 429) throw new Error('RATE_LIMITED');
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+
+    const data = await res.json();
+    const arts = (data && data.articles) || [];
+    if(!arts.length) throw new Error('EMPTY');
+
+    state.mainItems = arts.map(a => {
+      const t = parseGdeltTime(a.seendate);
+      return {
+        title: (a.title || '').replace(/\s+/g,' ').trim(),
+        url: a.url,
+        image: a.socialimage || '',
+        source: a.domain || '',
+        timeLabel: t ? relTime(t) : '',
+        lang: a.language || '',
+        langCode: LANG_MAP[a.language] || 'auto',
+        pubDate: t ? t.getTime() : 0
+      };
+    }).filter(x => x.title && x.url);
+
+    state.mainItems.sort((a, b) => b.pubDate - a.pubDate);
+
+    state.mainSource = 'gdelt';
+    $('#src-tag').textContent = 'GDELT';
+    state.loadingMain = false;
+    writeCache(state.mainItems);
+    renderMain();
+    updateCounts();
+    if(state.autoTranslate) autoTranslateAll('#feed-main');
+  }catch(err){
+    // 主源失败 → 切到航天防务库做关键词检索，保证页面不空
+    await fallbackMain(topic, err);
+  }
+  setStamp();
+}
+
+/* 备用主源：Spaceflight News API 关键词检索 */
+async function fallbackMain(topic, err){
+  const reason = (err && err.message === 'RATE_LIMITED') ? 'GDELT 限流'
+               : (err && err.message === 'EMPTY') ? '该主题暂无结果'
+               : (err && err.name === 'TimeoutError') ? 'GDELT 超时'
+               : 'GDELT 不可达';
+  try{
+    const url = SF_API + '?search=' + encodeURIComponent(topic.fb || 'military') + '&limit=18&ordering=-published_at';
+    const res = await fetchT(url, 15000);
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    state.mainItems = (data.results || []).map(a => ({
+      title: a.title,
+      url: a.url,
+      image: a.image_url || '',
+      source: a.news_site || '',
+      timeLabel: a.published_at ? relTime(new Date(a.published_at)) : '',
+      lang: 'EN',
+      langCode: 'en',
+      pubDate: a.published_at ? new Date(a.published_at).getTime() : 0
+    }));
+    if(!state.mainItems.length) throw new Error('EMPTY2');
+    state.mainItems.sort((a, b) => b.pubDate - a.pubDate);
+    state.mainSource = 'sf';
+    state.loadingMain = false;
+    $('#src-tag').textContent = '防务库';
+    renderMain();
+    updateCounts();
+    toast(reason + '，已切到防务新闻库');
+    if(state.autoTranslate) autoTranslateAll('#feed-main');
+  }catch(e2){
+    state.loadingMain = false;
+    const sd = seedItems();
+    state.mainItems = sd;
+    state.mainSource = 'seed';
+    $('#src-tag').textContent = '内置快照';
+    renderMain();
+    updateCounts();
+    toast(reason + '，已显示内置快照（11-25 01:35）');
+  }
+}
+
+async function fetchSf(){
+  state.loadingSf = true; state.errorSf = '';
+  renderSf();
+  const url = SF_API + '?limit=10&ordering=-published_at';
+  try{
+    const res = await fetchT(url, 15000);
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    state.sfItems = (data.results || []).map(a => ({
+      title: a.title,
+      url: a.url,
+      image: a.image_url || '',
+      source: a.news_site || '',
+      timeLabel: a.published_at ? relTime(new Date(a.published_at)) : '',
+      lang: 'EN',
+      langCode: 'en',
+      pubDate: a.published_at ? new Date(a.published_at).getTime() : 0
+    }));
+    state.sfItems.sort((a, b) => b.pubDate - a.pubDate);
+    state.loadingSf = false;
+    renderSf();
+    updateCounts();
+    if(state.autoTranslate) autoTranslateAll('#feed-sf');
+  }catch(err){
+    state.loadingSf = false;
+    state.sfItems = seedItems().slice(-6);
+    $('#src-tag-sf') && ($('#src-tag-sf').textContent = '内置快照');
+    renderSf();
+    updateCounts();
+  }
+  setStamp();
+}
+
+/* 自动翻译：串行进行；一旦失败立即停下，避免无谓请求 */
+async function autoTranslateAll(sel){
+  const feed = $(sel);
+  if(!feed) return;
+  const cards = Array.from(feed.querySelectorAll('.card'));
+  let failed = false, okCount = 0;
+
+  for(const card of cards){
+    if(!state.autoTranslate) return;
+    const btn = card.querySelector('[data-tr]');
+    if(!btn || btn.classList.contains('done')) continue;
+    const kind = card.dataset.kind;
+    const idx = +card.dataset.idx;
+    const it = kind === 'sf' ? state.sfItems[idx] : state.mainItems[idx];
+    if(!it) continue;
+
+    btn.classList.add('loading');
+    btn.textContent = '…';
+    const out = await translateText(it.title, it.langCode);
+    btn.classList.remove('loading');
+
+    if(!out){ failed = true; btn.textContent = '译'; break; }
+
+    const titleEl = card.querySelector('[data-title]');
+    titleEl.textContent = out;
+    titleEl.classList.add('zh');
+    btn.textContent = '已译';
+    btn.classList.add('done');
+    okCount++;
+    await new Promise(r => setTimeout(r, 120));
+  }
+
+  if(failed){
+    if(okCount === 0){
+      // 内置翻译整体不可用：自动关掉开关，避免每次打开都空转
+      state.autoTranslate = false;
+      const sw = $('#autoTr .sw');
+      if(sw) sw.classList.remove('on');
+      toast('内置翻译暂时不可用，已先关闭自动翻译；可在浏览器里右键「翻译成中文」', 4200);
+    }else{
+      toast('部分标题没翻成，可点单条的「译」重试', 2800);
+    }
+  }
+}
+
+function updateCounts(){
+  $('#cnt-main').textContent = state.mainItems.length ? state.mainItems.length + ' 条' : '';
+  $('#cnt-sf').textContent = state.sfItems.length ? state.sfItems.length + ' 条' : '';
+}
+
+function setStamp(){
+  const now = new Date();
+  $('#stamp').innerHTML = '最后更新 ' + now.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})
+    + '<br><b>' + (state.mainItems.length + state.sfItems.length) + ' 条待读</b>';
+}
+
+/* ================= 交互 ================= */
+function buildChips(){
+  const row = $('#chips');
+  row.innerHTML = TOPICS.map(t =>
+    '<div class="chip' + (t.key===state.topic?' on':'') + '" data-key="' + t.key + '">' + t.label + '</div>'
+  ).join('');
+  row.querySelectorAll('.chip').forEach(el => {
+    el.addEventListener('click', () => {
+      if(el.classList.contains('on')) return;
+      state.topic = el.dataset.key;
+      row.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === el));
+      fetchMain(false);
+    });
+  });
+}
+
+$('#langseg').querySelectorAll('button').forEach(b => {
+  b.addEventListener('click', () => {
+    if(b.classList.contains('on')) return;
+    state.langMode = b.dataset.mode;
+    $('#langseg').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    fetchMain(false);
+    toast(state.langMode === 'zh' ? '已切到中文媒体源' : '已切到全球英文源，可开自动翻译');
+  });
+});
+
+$('#autoTr').addEventListener('click', () => {
+  state.autoTranslate = !state.autoTranslate;
+  $('#autoTr .sw').classList.toggle('on', state.autoTranslate);
+  if(state.autoTranslate){
+    autoTranslateAll('#feed-main');
+    autoTranslateAll('#feed-sf');
+    toast('已开启自动翻译，逐条翻译中');
+  }else{
+    toast('已关闭自动翻译');
+  }
+});
+
+$('#refresh').addEventListener('click', () => {
+  const b = $('#refresh');
+  b.classList.add('spinning');
+  Promise.all([fetchMain(true), fetchSf()]).finally(() => {
+    setTimeout(()=>b.classList.remove('spinning'), 400);
+  });
+});
+
+/* 供状态块里的按钮调用 */
+window.reloadMain = () => fetchMain(true);
+window.reloadSf = () => fetchSf();
+
+/* ================= 启动 ================= */
+buildChips();
+renderMain();
+renderSf();
+fetchMain(false);
+fetchSf();
+setStamp();
+</script>
+</body>
+</html>
