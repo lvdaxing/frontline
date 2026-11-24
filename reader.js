@@ -171,6 +171,11 @@
       theme.textContent = '\u65e5\u95f4';
       bar.appendChild(theme);
 
+      var ver = doc.createElement('span');
+      ver.style.cssText = 'font-size:10px;color:var(--mut);margin-left:2px;letter-spacing:.05em;';
+      ver.textContent = 'v1.5';
+      bar.appendChild(ver);
+
       var orig = doc.createElement('a');
       orig.id = 'fl-open';
       orig.href = '#';
