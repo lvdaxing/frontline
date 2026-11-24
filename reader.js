@@ -1,9 +1,9 @@
 (function () {
   if (window.__flReader) return;
   window.__flReader = 1;
-  window.__flVer = '1.9';
+  window.__flVer = '1.10';
 
-  var VERSION = 'v1.9';
+  var VERSION = 'v1.10';
   var SPEAK_CHARS = 3200;
   var KW = ['\u6253\u51fb','\u88ad\u51fb','\u7a7a\u88ad','\u5bfc\u5f39','\u65e0\u4eba\u673a','\u90e8\u961f','\u519b\u65b9','\u56fd\u9632','\u6218\u573a','\u4f24\u4ea1',
             '\u8c08\u5224','\u534f\u8bae','\u5236\u88c1','\u90e8\u7f72','\u519b\u6f14','\u62e6\u622a','\u64a4\u79bb','\u58f0\u660e','\u5ba3\u5e03',
@@ -36,6 +36,82 @@
     scored.sort(function (a, b) { return b.v - a.v; });
     var top = scored.slice(0, 3).sort(function (a, b) { return a.i - b.i; });
     return top.map(function (x) { return x.s; }).join(' ');
+  }
+
+  var AD_WORDS = ['ad','ads','advert','advertisement','sponsor','sponsored','promo','promotion',
+    'guanggao','gg','tuiguang','tuijian','recommend','related','hotnews','banner','popup',
+    'float','floatlayer','sidebar','share','social','comment','comments','qrcode','erweima',
+    'openapp','appdown','app-download','downloadapp','subscribe','newsletter','cookie','pop-ad'];
+
+  var PROMO_TXT = /(下载.{0,8}(APP|App|app|客户端|应用)|扫码|二维码|长按.{0,6}识别|关注.{0,6}(公众号|微博|抖音)|点击.{0,6}(下载|安装|领取|报名)|原文链接|复制.{0,6}(链接|网址)|广告|赞助|推广|更多精彩.{0,6}(内容|视频))/;
+
+  function adName(el) {
+    var raw = '';
+    try {
+      raw = (typeof el.className === 'string' ? el.className : '') + ' ' + (el.id || '');
+    } catch (e) { return false; }
+    var s = raw.toLowerCase().replace(/[^a-z0-9\-_\s]/g, ' ');
+    if (!s.trim()) return false;
+    var words = s.split(/[\s\-_]+/);
+    for (var i = 0; i < words.length; i++) {
+      if (words[i] && AD_WORDS.indexOf(words[i]) > -1) return true;
+    }
+    return false;
+  }
+
+  function isOverlay(el) {
+    try {
+      var st = el.getAttribute('style') || '';
+      return /position\s*:\s*(fixed|sticky)/i.test(st);
+    } catch (e) { return false; }
+  }
+
+  function isBannerImg(el) {
+    var src = (el.getAttribute('src') || '') + ' ' + (el.getAttribute('data-src') || '');
+    if (/spacer|pixel|blank\.gif|1x1|logo|icon|avatar|emoji|emoji/i.test(src)) return true;
+    var w = parseInt(el.getAttribute('width') || '0', 10);
+    var h = parseInt(el.getAttribute('height') || '0', 10);
+    if (w > 0 && h > 0) {
+      if (h <= 90 && w / h >= 4) return true;      /* 细长横幅 */
+      if (w <= 320 && h <= 100) return true;        /* 小广告条 */
+    }
+    return false;
+  }
+
+  function deepClean(root) {
+    var pass, k;
+    for (pass = 0; pass < 2; pass++) {
+      var all = root.querySelectorAll('*');
+      for (k = all.length - 1; k >= 0; k--) {
+        var el = all[k];
+        var tag = (el.tagName || '').toLowerCase();
+        if (tag === 'script' || tag === 'style' || tag === 'iframe' || tag === 'noscript' ||
+            tag === 'embed' || tag === 'object' || tag === 'form' || tag === 'button' ||
+            tag === 'select' || tag === 'input' || tag === 'textarea' || tag === 'svg' ||
+            tag === 'aside' || tag === 'nav' || tag === 'footer') {
+          if (el.parentNode) el.parentNode.removeChild(el);
+          continue;
+        }
+        if (adName(el)) { if (el.parentNode) el.parentNode.removeChild(el); continue; }
+        if (isOverlay(el)) { if (el.parentNode) el.parentNode.removeChild(el); continue; }
+        if (tag === 'img' && isBannerImg(el)) { if (el.parentNode) el.parentNode.removeChild(el); continue; }
+        if (tag === 'p' || tag === 'div' || tag === 'span' || tag === 'a' || tag === 'li') {
+          var tx = (el.textContent || '').replace(/\s+/g, ' ').trim();
+          if (tx.length > 0 && tx.length < 60 && PROMO_TXT.test(tx) && !el.querySelector('img')) {
+            if (el.parentNode) el.parentNode.removeChild(el);
+            continue;
+          }
+        }
+      }
+      /* 清理删空后的容器 */
+      var boxes = root.querySelectorAll('div,section,article,li,ul,p,span');
+      for (k = boxes.length - 1; k >= 0; k--) {
+        var b = boxes[k];
+        if (b.querySelector && b.querySelector('img')) continue;
+        var t = (b.textContent || '').replace(/\s+/g, '');
+        if (t.length === 0 && b.parentNode) b.parentNode.removeChild(b);
+      }
+    }
   }
 
   function extract() {
@@ -71,6 +147,7 @@
       for (var k = kill.length - 1; k >= 0; k--) {
         if (kill[k].parentNode) kill[k].parentNode.removeChild(kill[k]);
       }
+      deepClean(clone);
 
       var imgs = clone.querySelectorAll('img');
       for (var j = 0; j < imgs.length; j++) {
