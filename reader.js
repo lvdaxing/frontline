@@ -1,9 +1,9 @@
 (function () {
   if (window.__flReader) return;
   window.__flReader = 1;
-  window.__flVer = '1.7';
+  window.__flVer = '1.8';
 
-  var VERSION = 'v1.7';
+  var VERSION = 'v1.8';
   var SPEAK_CHARS = 3200;
   var KW = ['\u6253\u51fb','\u88ad\u51fb','\u7a7a\u88ad','\u5bfc\u5f39','\u65e0\u4eba\u673a','\u90e8\u961f','\u519b\u65b9','\u56fd\u9632','\u6218\u573a','\u4f24\u4ea1',
             '\u8c08\u5224','\u534f\u8bae','\u5236\u88c1','\u90e8\u7f72','\u519b\u6f14','\u62e6\u622a','\u64a4\u79bb','\u58f0\u660e','\u5ba3\u5e03',
