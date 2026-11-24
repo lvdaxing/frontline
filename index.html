@@ -308,6 +308,15 @@ body::after{
   .sk-thumb{width:84px;height:62px;flex-basis:84px}
   .sk{padding:11px;gap:11px}
 }
+.vtag{
+  display:inline-block;font-size:9.5px;font-weight:600;letter-spacing:.04em;
+  color:#6c7484;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);
+  border-radius:4px;padding:1px 5px;margin-left:8px;vertical-align:6px;
+}
+#diag{
+  margin:18px 16px 28px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06);
+  font-size:10.5px;color:#5b6474;line-height:1.7;text-align:center;letter-spacing:.02em;
+}
 </style>
 </head>
 <body>
@@ -323,7 +332,7 @@ body::after{
         </svg>
       </div>
       <div class="brand-txt">
-        <div class="brand-title">前线 <span>Frontline</span></div>
+        <div class="brand-title">前线 <span>Frontline</span><span class="vtag">v1.7</span></div>
         <div class="brand-sub">国际军事 · 政治 · 防务速览</div>
       </div>
     </div>
@@ -379,7 +388,7 @@ body::after{
 
   <div class="foot">
     <span>数据：GDELT Project · Spaceflight News API（均免密钥）</span>
-    <span>译文由 Google / MyMemory 提供，仅供参考 · v1.6<br><br><b>离线兜底</b>实时接口不可用时自动显示内置快照，不会空白；下拉或点右上角刷新可重新拉取。</span>
+    <span>译文由 Google / MyMemory 提供，仅供参考 · v1.7<br><br><b>离线兜底</b>实时接口不可用时自动显示内置快照，不会空白；下拉或点右上角刷新可重新拉取。</span>
   </div>
 </div>
 
@@ -990,6 +999,13 @@ renderSf();
 fetchMain(false);
 fetchSf();
 setStamp();
+</script>
+<div id="diag">v1.7 · 阅读注入：未测试</div>
+<script>
+window.__diag = function(s){
+  var d = document.getElementById('diag');
+  if(d) d.textContent = 'v1.7 · 阅读注入：' + s;
+};
 </script>
 </body>
 </html>
